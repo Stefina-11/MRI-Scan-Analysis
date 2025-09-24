@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain Tumor Analysis System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px; /* Increased width */
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .custom-file-upload {
+            border: 1px solid #007bff;
+            display: inline-block;
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .custom-file-upload:hover {
+            background-color: #0056b3;
+        }
+        #fileName {
+            margin-top: 10px;
+            font-style: italic;
+            color: #555;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #responseMessage {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload MRI Scan for Analysis</h1>
+        <div class="upload-section">
+            <label for="mriScan" class="custom-file-upload">
+                Choose MRI Scan
+            </label>
+            <input type="file" id="mriScan" name="mriScan" accept=".dcm,.nii,.gz,.jpg,.jpeg,.png">
+            <div id="fileName">No file chosen</div>
+        </div>
+        <button id="uploadButton">Upload Scan</button>
+        <div id="responseMessage"></div>
+
+        <div id="analysisResults" style="margin-top: 30px; display: none;">
+            <h2>Analysis Results</h2>
+            <p><strong>Tumor Detected:</strong> <span id="tumorDetected"></span></p>
+            <p><strong>Tumor Type:</strong> <span id="tumorType"></span></p>
+            <p><strong>Tumor Grade:</strong> <span id="tumorGrade"></span></p>
+            <p><strong>Medical Summary:</strong> <span id="medicalSummary"></span></p>
+            <p><strong>Surgical Approach:</strong> <span id="surgicalApproach"></span></p>
+
+            <div id="advancedAnalysisResults" style="margin-top: 20px;">
+                <h3>Advanced Analysis</h3>
+                <p><strong>Patient ID:</strong> <span id="patientId"></span></p>
+                <p><strong>Report ID:</strong> <span id="reportId"></span></p>
+                <p><strong>Detection Confidence:</strong> <span id="detectionConfidence"></span></p>
+                <p><strong>Classification Confidence:</strong> <span id="classificationConfidence"></span></p>
+                <p><strong>Grading Confidence:</strong> <span id="gradingConfidence"></span></p>
+                <p><strong>Anomaly Detected:</strong> <span id="anomalyDetected"></span></p>
+                <div id="growthTrackingSection" style="display: none;">
+                    <h4>Tumor Growth Tracking</h4>
+                    <p><strong>Previous Scan Date:</strong> <span id="previousScanDate"></span></p>
+                    <p><strong>Previous Tumor Size:</strong> <span id="previousTumorSize"></span></p>
+                    <p><strong>Growth Rate:</strong> <span id="growthRate"></span></p>
+                </div>
+                <p><strong>3D Reconstruction:</strong> <span id="threeDReconstruction"></span></p>
+                <p><strong>Multi-modal MRI Processed:</strong> <span id="multiModalProcessed"></span></p>
+                <div id="treatmentSuggestionsSection" style="display: none;">
+                    <h4>Treatment Suggestions</h4>
+                    <ul id="treatmentSuggestionsList"></ul>
+                </div>
+                <div id="explainabilitySection" style="display: none;">
+                    <h4>Explainability & Transparency</h4>
+                    <p><strong>AI Reasoning:</strong> <span id="aiReasoning"></span></p>
+                    <div id="overlayImageContainer" style="text-align: center; margin-top: 10px; display: none;">
+                        <h5>Segmentation Overlay / Heatmap</h5>
+                        <img id="overlayImage" src="" alt="Segmentation Overlay" style="max-width: 100%; height: auto; border: 1px solid #ccc;">
+                    </div>
+                </div>
+                <p><strong>Audit Trail:</strong> <span id="auditTrail"></span></p>
+            </div>
+
+            <button id="viewScanButton" style="margin-top: 15px; background-color: #17a2b8;">View Uploaded Scan</button>
+            <button id="generateReportButton" style="margin-top: 15px; background-color: #6c757d;">Generate Report</button>
+            <div id="mriViewer" style="margin-top: 20px; text-align: center; display: none;">
+                <h3>MRI Viewer</h3>
+                <img id="mriImage" src="" alt="MRI Scan" style="max-width: 100%; height: auto; border: 1px solid #ccc;">
+                <p>Note: For DICOM/NIfTI, a dedicated viewer would be integrated here for slice-by-slice viewing.</p>
+            </div>
+        </div>
+
+
+        <div class="section" style="margin-top: 20px;">
+            <h2>Educational Information</h2>
+            <p><strong>Understanding Brain Tumors:</strong> Brain tumors are abnormal growths of cells in the brain. They can be benign (non-cancerous) or malignant (cancerous). Symptoms vary depending on the tumor's size, type, and location.</p>
+            <p><strong>Common Symptoms:</strong> Headaches, seizures, nausea, vomiting, vision problems, and changes in personality or behavior.</p>
+            <p><strong>Treatment Options:</strong> May include surgery, radiation therapy, chemotherapy, targeted drug therapy, or a combination of these, depending on the tumor type, grade, and patient's overall health.</p>
+            <p>For more detailed information, please consult with a medical professional.</p>
+        </div>
+    </div>
+
+    <script>
+        const mriScanInput = document.getElementById('mriScan');
+        const fileNameDisplay = document.getElementById('fileName');
+        const uploadButton = document.getElementById('uploadButton');
+        const responseMessageDiv = document.getElementById('responseMessage');
+        const analysisResultsDiv = document.getElementById('analysisResults');
+        const tumorDetectedSpan = document.getElementById('tumorDetected');
+        const tumorTypeSpan = document.getElementById('tumorType');
+        const tumorGradeSpan = document.getElementById('tumorGrade');
+        const medicalSummarySpan = document.getElementById('medicalSummary');
+        const surgicalApproachSpan = document.getElementById('surgicalApproach');
+
+        const patientIdSpan = document.getElementById('patientId');
+        const reportIdSpan = document.getElementById('reportId');
+        const detectionConfidenceSpan = document.getElementById('detectionConfidence');
+        const classificationConfidenceSpan = document.getElementById('classificationConfidence');
+        const gradingConfidenceSpan = document.getElementById('gradingConfidence');
+        const anomalyDetectedSpan = document.getElementById('anomalyDetected');
+        const growthTrackingSection = document.getElementById('growthTrackingSection');
+        const previousScanDateSpan = document.getElementById('previousScanDate');
+        const previousTumorSizeSpan = document.getElementById('previousTumorSize');
+        const growthRateSpan = document.getElementById('growthRate');
+        const threeDReconstructionSpan = document.getElementById('threeDReconstruction');
+        const multiModalProcessedSpan = document.getElementById('multiModalProcessed');
+        const treatmentSuggestionsSection = document.getElementById('treatmentSuggestionsSection');
+        const treatmentSuggestionsList = document.getElementById('treatmentSuggestionsList');
+        const explainabilitySection = document.getElementById('explainabilitySection');
+        const aiReasoningSpan = document.getElementById('aiReasoning');
+        const overlayImageContainer = document.getElementById('overlayImageContainer');
+        const overlayImage = document.getElementById('overlayImage');
+        const auditTrailSpan = document.getElementById('auditTrail');
+
+
+        const viewScanButton = document.getElementById('viewScanButton');
+        const generateReportButton = document.getElementById('generateReportButton');
+        const mriViewerDiv = document.getElementById('mriViewer');
+        const mriImage = document.getElementById('mriImage');
+
+        let uploadedFilePath = '';
+        let currentAnalysisResult = null;
+
+        mriScanInput.addEventListener('change', (event) => {
+            if (event.target.files.length > 0) {
+                fileNameDisplay.textContent = event.target.files[0].name;
+            } else {
+                fileNameDisplay.textContent = 'No file chosen';
+            }
+        });
+
+        uploadButton.addEventListener('click', async () => {
+            const file = mriScanInput.files[0];
+            if (!file) {
+                displayMessage('Please select an MRI scan to upload.', 'error');
+                return;
+            }
+
+            const allowedExtensions = ['.dcm', '.nii', '.gz', '.jpg', '.jpeg', '.png', '.gif'];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            if (!allowedExtensions.includes(fileExtension)) {
+                displayMessage('Invalid file type. Only DICOM, NIfTI, JPG, JPEG, PNG, GIF files are allowed.', 'error');
+                return;
+            }
+
+            const maxSize = 10 * 1024 * 1024;
+            if (file.size > maxSize) {
+                displayMessage('File size exceeds 10MB limit.', 'error');
+                return;
+            }
+
+
+            const formData = new FormData();
+            formData.append('mriScan', file);
+
+            try {
+                displayMessage('Uploading and analyzing...', 'info');
+                const response = await fetch('/upload-mri', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    displayMessage(result.message, 'success');
+                    currentAnalysisResult = result.analysis;
+                    displayAnalysisResults(currentAnalysisResult);
+                    uploadedFilePath = result.filePath;
+                    viewScanButton.style.display = 'block';
+                    generateReportButton.style.display = 'block';
+                } else {
+                    displayMessage(result.message || 'File upload failed.', 'error');
+                    analysisResultsDiv.style.display = 'none';
+                    viewScanButton.style.display = 'none';
+                    generateReportButton.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error uploading file:', error);
+                displayMessage('An error occurred during upload.', 'error');
+                analysisResultsDiv.style.display = 'none';
+                    viewScanButton.style.display = 'none';
+                    generateReportButton.style.display = 'none';
+                }
+            });
+
+        viewScanButton.addEventListener('click', () => {
+            if (uploadedFilePath) {
+                mriImage.src = uploadedFilePath;
+                mriViewerDiv.style.display = 'block';
+            } else {
+                displayMessage('No scan uploaded to view.', 'error');
+            }
+        });
+
+        generateReportButton.addEventListener('click', async () => {
+            if (!currentAnalysisResult || !uploadedFilePath) {
+                displayMessage('Please upload and analyze a scan first.', 'error');
+                return;
+            }
+
+            displayMessage('Generating report...', 'info');
+            try {
+                const response = await fetch('/generate-report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        analysisResult: currentAnalysisResult,
+                        imagePath: uploadedFilePath,
+                    }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    displayMessage(result.message + ` <a href="${result.reportUrl}" target="_blank">Download Report</a>`, 'success');
+                } else {
+                    displayMessage(result.message || 'Report generation failed.', 'error');
+                }
+            } catch (error) {
+                console.error('Error generating report:', error);
+                displayMessage('An error occurred during report generation.', 'error');
+            }
+        });
+
+        function displayMessage(message, type) {
+            responseMessageDiv.innerHTML = message;
+            responseMessageDiv.className = '';
+            responseMessageDiv.classList.add(type);
+            responseMessageDiv.style.display = 'block';
+        }
+
+        function displayAnalysisResults(analysis) {
+            tumorDetectedSpan.textContent = analysis.tumorDetected ? 'Yes' : 'No';
+            tumorTypeSpan.textContent = analysis.tumorType || 'N/A';
+            tumorGradeSpan.textContent = analysis.tumorGrade || 'N/A';
+            medicalSummarySpan.textContent = analysis.medicalSummary || 'N/A';
+            surgicalApproachSpan.textContent = analysis.surgicalApproach || 'N/A';
+
+            patientIdSpan.textContent = analysis.patientId || 'N/A';
+            reportIdSpan.textContent = analysis.reportId || 'N/A';
+
+            if (analysis.confidenceScores) {
+                detectionConfidenceSpan.textContent = analysis.confidenceScores.detection ? `${(analysis.confidenceScores.detection * 100).toFixed(2)}%` : 'N/A';
+                if (analysis.confidenceScores.classification) {
+                    classificationConfidenceSpan.textContent = Object.entries(analysis.confidenceScores.classification).map(([type, score]) => `${type}: ${(score * 100).toFixed(2)}%`).join(', ');
+                } else {
+                    classificationConfidenceSpan.textContent = 'N/A';
+                }
+                if (analysis.confidenceScores.grading) {
+                    gradingConfidenceSpan.textContent = Object.entries(analysis.confidenceScores.grading).map(([grade, score]) => `${grade}: ${(score * 100).toFixed(2)}%`).join(', ');
+                } else {
+                    gradingConfidenceSpan.textContent = 'N/A';
+                }
+            } else {
+                detectionConfidenceSpan.textContent = 'N/A';
+                classificationConfidenceSpan.textContent = 'N/A';
+                gradingConfidenceSpan.textContent = 'N/A';
+            }
+
+            anomalyDetectedSpan.textContent = analysis.anomalyDetected ? 'Yes' : 'No';
+
+            if (analysis.growthTrackingData?.previousScanDate) {
+                growthTrackingSection.style.display = 'block';
+                previousScanDateSpan.textContent = analysis.growthTrackingData.previousScanDate;
+                previousTumorSizeSpan.textContent = analysis.growthTrackingData.previousTumorSize;
+                growthRateSpan.textContent = analysis.growthTrackingData.growthRate;
+            } else {
+                growthTrackingSection.style.display = 'none';
+            }
+
+            threeDReconstructionSpan.textContent = analysis.threeDReconstructionData?.modelUrl ? `Available (URL: ${analysis.threeDReconstructionData.modelUrl})` : 'N/A';
+            multiModalProcessedSpan.textContent = analysis.multiModalDataProcessed ? 'Yes' : 'No';
+
+            if (analysis.treatmentSuggestions?.length) {
+                treatmentSuggestionsSection.style.display = 'block';
+                treatmentSuggestionsList.innerHTML = analysis.treatmentSuggestions.map(s => `<li>${s}</li>`).join('');
+            } else {
+                treatmentSuggestionsSection.style.display = 'none';
+            }
+
+            if (analysis.explainableAIData?.stepByStepReasoning) {
+                explainabilitySection.style.display = 'block';
+                aiReasoningSpan.textContent = analysis.explainableAIData.stepByStepReasoning;
+                if (analysis.explainableAIData.overlayImage) {
+                    overlayImageContainer.style.display = 'block';
+                    overlayImage.src = analysis.explainableAIData.overlayImage;
+                } else {
+                    overlayImageContainer.style.display = 'none';
+                }
+            } else {
+                explainabilitySection.style.display = 'none';
+            }
+
+            auditTrailSpan.textContent = analysis.auditLogEntry || 'N/A';
+
+            analysisResultsDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
